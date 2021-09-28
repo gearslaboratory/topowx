@@ -1,0 +1,11 @@
+`Traceback (most recent call last):
+  File "step01_download_ghcnd.py", line 13, in <module>
+    twx_cfg = TwxConfig(os.getenv('TOPOWX_INI'))
+  File "/home/adrianom/Documents/code/topowx3/scripts/twx/utils/config.py", line 47, in __init__
+    cfg.read(fpath_ini)
+  File "/home/adrianom/anaconda3/envs/topowx3/lib/python3.7/configparser.py", line 693, in read
+    for filename in filenames:
+TypeError: 'NoneType' object is not iterable
+`
+
+I've been trying to get TopoWX to work, but given that it only supports Python 2 and obsio (a required module for TopoWX) only supports Python 3, it has been tricky to get things to work. The error above occurs when trying to run TopoWX with Python 3. I tried converting all the code to Python 3 syntax and install all the packages/dependencies needed. After finally getting everything installed, I got the error message above. Could this be because I am using Python 3? I am not sure. 

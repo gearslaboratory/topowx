@@ -12,9 +12,9 @@ r_libs_require = ['changepoint',
                   'sp']
 
 #Check python version
-if sys.version_info.major > 2:
-    print "Sorry, Python 3 is not yet supported"
-    sys.exit(1)
+#if sys.version_info.major > 2:
+#    print "Sorry, Python 3 is not yet supported"
+#    sys.exit(1)
 
 #Check for rpy2 and required R libraries
 import rpy2.robjects
