@@ -47,7 +47,7 @@ def proc_work(fpath_stndb, elem, rank):
         if status.tag == TAG_STOPWORK:
             
             MPI.COMM_WORLD.send([None] * 3, dest=RANK_WRITE, tag=TAG_STOPWORK)
-            print "".join(["WORKER ", str(rank), ": Finished"]) 
+            print("".join(["WORKER ", str(rank), ": Finished"])) 
             return 0
         
         else:
@@ -58,8 +58,8 @@ def proc_work(fpath_stndb, elem, rank):
                                             
             except Exception as e:
             
-                print "".join(["ERROR: Worker ", str(rank),
-                               ": could not xval ", stn_id, str(e)])
+                print("".join(["ERROR: Worker ", str(rank),
+                               ": could not xval ", stn_id, str(e)]))
                 
                 tair_daily = np.ones(ndays) * netCDF4.default_fillvals['f4']
                 tair_norms = np.ones(12) * netCDF4.default_fillvals['f8']
@@ -82,7 +82,7 @@ def proc_write(fpath_stndb, elem, fpath_out, nwrkers):
     stn_da.ds.close()
     stn_da = None
     
-    print "WRITER: Creating output station netCDF database..."
+    print("WRITER: Creating output station netCDF database...")
     
     create_quick_db(fpath_out, stns, days, DB_VARIABLES[elem])
     stnda_out = StationSerialDataDb(fpath_out, elem, mode='r+')
@@ -97,7 +97,7 @@ def proc_write(fpath_stndb, elem, fpath_out, nwrkers):
     
     stnda_out.ds.sync()
     
-    print "WRITER: Output station netCDF database created."
+    print("WRITER: Output station netCDF database created.")
     
     mths = np.arange(12)
         
@@ -113,7 +113,7 @@ def proc_write(fpath_stndb, elem, fpath_out, nwrkers):
             
             nwrkrs_done += 1
             if nwrkrs_done == nwrkers:
-                print "WRITER: Finished"
+                print("WRITER: Finished")
                 return 0
         else:
             
@@ -134,7 +134,7 @@ def proc_coord(fpath_stndb, elem, nwrkers):
                               np.isnan(stn_da.stns[BAD]))    
     stns = stn_da.stns[stn_mask]
             
-    print "COORD: Done initialization. Starting to send work."
+    print("COORD: Done initialization. Starting to send work.")
     
     cnt = 0
     nrec = 0
@@ -153,7 +153,7 @@ def proc_coord(fpath_stndb, elem, nwrkers):
     for w in np.arange(nwrkers):
         MPI.COMM_WORLD.send(None, dest=w + N_NON_WRKRS, tag=TAG_STOPWORK)
         
-    print "COORD: done"
+    print("COORD: done")
 
 if __name__ == '__main__':
     
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     rank = MPI.COMM_WORLD.Get_rank()
     nsize = MPI.COMM_WORLD.Get_size()
     
-    print "Process %d of %d: element is %s" % (rank, nsize, elem)
+    print("Process %d of %d: element is %s" % (rank, nsize, elem))
             
     if rank == RANK_COORD:        
         proc_coord(fpath_stndb, elem, nsize - N_NON_WRKRS)

@@ -56,10 +56,10 @@ def proc_work(twx_cfg, start_ymd, end_ymd, params_ppca, rank):
     bcast_msg = None
     bcast_msg = MPI.COMM_WORLD.bcast(bcast_msg, root=RANK_COORD)
     stnids_tmin, stnids_tmax = bcast_msg
-    print "".join(["WORKER ", str(rank), ": Received broadcast msg"])
-    print "".join(["WORKER ", str(rank),
+    print("".join(["WORKER ", str(rank), ": Received broadcast msg"]))
+    print("".join(["WORKER ", str(rank),
                    ": Minimum number of station neighbors for infilling: ",
-                   str(params_ppca['min_daily_nnghs'])])
+                   str(params_ppca['min_daily_nnghs'])]))
 
     while 1:
 
@@ -67,7 +67,7 @@ def proc_work(twx_cfg, start_ymd, end_ymd, params_ppca, rank):
 
         if status.tag == TAG_STOPWORK:
             MPI.COMM_WORLD.send([None] * 7, dest=RANK_WRITE, tag=TAG_STOPWORK)
-            print "".join(["WORKER ", str(rank), ": Finished"])
+            print("".join(["WORKER ", str(rank), ": Finished"]))
             return 0
         else:
 
@@ -92,7 +92,7 @@ def proc_work(twx_cfg, start_ymd, end_ymd, params_ppca, rank):
             
             except Exception as e:
 
-                print "".join(["ERROR: Could not infill ", stn_id, "|", str(e)])
+                print("".join(["ERROR: Could not infill ", stn_id, "|", str(e)]))
                 if run_infill_tmin:
                     
                     results = empty_fill, empty_flags, empty_fill, empty_mae, empty_bias
@@ -124,7 +124,7 @@ def proc_write(twx_cfg, ncdf_mode, start_ymd, end_ymd, nwrkers):
     bcast_msg = None
     bcast_msg = MPI.COMM_WORLD.bcast(bcast_msg, root=RANK_COORD)
     stnids_tmin, stnids_tmax = bcast_msg
-    print "WRITER: Received broadcast msg"
+    print("WRITER: Received broadcast msg")
 
     if ncdf_mode == 'r+':
 
@@ -170,8 +170,8 @@ def proc_write(twx_cfg, ncdf_mode, start_ymd, end_ymd, nwrkers):
 
         ttl_infills = stnids_tmin.size + stnids_tmax.size
 
-    print "WRITER: Infilling a total of %d station time series " % (ttl_infills,)
-    print "WRITER: Output NCDF files ready"
+    print("WRITER: Infilling a total of %d station time series " % (ttl_infills,))
+    print("WRITER: Output NCDF files ready")
 
     stat_chk = StatusCheck(ttl_infills, 10)
 
@@ -186,7 +186,7 @@ def proc_write(twx_cfg, ncdf_mode, start_ymd, end_ymd, nwrkers):
             nwrkrs_done += 1
             if nwrkrs_done == nwrkers:
 
-                print "Writer: Finished"
+                print("Writer: Finished")
                 return 0
         else:
 
@@ -205,8 +205,8 @@ def proc_write(twx_cfg, ncdf_mode, start_ymd, end_ymd, nwrkers):
 
             ds.sync()
 
-            print "|".join(["WRITER", stn_id, tair_var, "%.4f" % (mae,),
-                            "%.4f" % (bias,)])
+            print("|".join(["WRITER", stn_id, tair_var, "%.4f" % (mae,),
+                            "%.4f" % (bias,)]))
 
             stat_chk.increment()
 
@@ -263,7 +263,7 @@ def proc_coord(twx_cfg, ncdf_mode, stnids_to_infill_tmin, stnids_to_infill_tmax,
     # Send stn ids to all processes
     MPI.COMM_WORLD.bcast((stnids_tmin, stnids_tmax), root=RANK_COORD)
 
-    print "COORD: Done initialization. Starting to send work."
+    print("COORD: Done initialization. Starting to send work.")
 
     cnt = 0
     nrec = 0
@@ -282,7 +282,7 @@ def proc_coord(twx_cfg, ncdf_mode, stnids_to_infill_tmin, stnids_to_infill_tmax,
     for w in np.arange(nwrkers):
         MPI.COMM_WORLD.send(None, dest=w + N_NON_WRKRS, tag=TAG_STOPWORK)
 
-    print "COORD: done"
+    print("COORD: done")
 
 def infill_tair(stn_id, stn_da, tair_var, nnr_ds, vname_means, vname_varis,
                 day_masks, params_ppca):
@@ -328,7 +328,7 @@ if __name__ == '__main__':
     rank = MPI.COMM_WORLD.Get_rank()
     nsize = MPI.COMM_WORLD.Get_size()
 
-    print "NetCDF access mode is %s. Process %d of %d."%(ncdf_mode, rank, nsize)
+    print("NetCDF access mode is %s. Process %d of %d."%(ncdf_mode, rank, nsize))
     
     # Start and end YMD for infilling
     start_ymd = ymdL(twx_cfg.interp_start_date)
@@ -353,8 +353,8 @@ if __name__ == '__main__':
         # only for stations that were suspect.
         if fpath_log is not None:
             
-            print ("Initializing rerun of previous infill run. "
-                   "Process %d of %d"%(rank, nsize))
+            print(("Initializing rerun of previous infill run. "
+                   "Process %d of %d"%(rank, nsize)))
                                 
             stn_da = StationDataDb(twx_cfg.fpath_stndata_nc_tair_homog,
                                    (start_ymd, end_ymd))

@@ -27,6 +27,7 @@ if __name__ == '__main__':
     # Load location QA HDF file
     locqa = LocQA(twx_cfg.fpath_locqa_hdf,
                   usrname_geonames=twx_cfg.username_geonames)
+    #print(twx_cfg.fpath_locqa_hdf)
     # Add location QA data columns to stations
     stns = locqa.add_locqa_cols(stns)
     
@@ -34,7 +35,7 @@ if __name__ == '__main__':
     # have one and update the location QA HDF file
     stns_elevdem = stns[stns.elevation_dem.isnull()]
     
-    print "Retrieving DEM elevation data for %d stations..." % len(stns_elevdem)
+    print("Retrieving DEM elevation data for %d stations..." % len(stns_elevdem))
                 
     write_chk = 50
     schk = StatusCheck(len(stns), check_cnt=write_chk)
@@ -44,7 +45,7 @@ if __name__ == '__main__':
         stns_chk = stns_elevdem.iloc[i:(i + write_chk)].copy()
         
         for stnid in stns_chk.station_id:
-            
+            #print(stns_chk)
             lon, lat = stns_chk.loc[stnid, ['longitude', 'latitude']]
             elevdem = locqa.get_elevation_dem(lon, lat)
             stns_chk.loc[stnid, 'elevation_dem'] = elevdem
@@ -60,8 +61,8 @@ if __name__ == '__main__':
     stns_fail = locqa.get_locqa_fail_stns(stns, elev_dif_thres=200)
     
     # Write out CSV file of failed station locations for manual investigtion
-    print "%d stations failed location QA. Writing to %s" % (len(stns_fail),
-                                                             twx_cfg.fpath_locqa_fail_csv)
+    print("%d stations failed location QA. Writing to %s" % (len(stns_fail),
+                                                             twx_cfg.fpath_locqa_fail_csv))
     
     stns_fail['station_name'] = stns_fail.station_name.str.replace(',', ' ')
     stns_fail[['station_id', 'station_name', 'longitude', 'latitude',

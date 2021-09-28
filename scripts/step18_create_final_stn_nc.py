@@ -15,7 +15,7 @@ if __name__ == '__main__':
     twx_cfg = TwxConfig(os.getenv('TOPOWX_INI'))
     
     # Create final output serially-complete netCDF4 databases
-    print "Creating final serially-complete databases..."
+    print("Creating final serially-complete databases...")
     create_serially_complete_db(twx_cfg.fpath_stndata_nc_infill_tmin, 'tmin',
                                 twx_cfg.fpath_stndata_nc_serial_tmin)
     create_serially_complete_db(twx_cfg.fpath_stndata_nc_infill_tmax, 'tmax',
@@ -29,7 +29,7 @@ if __name__ == '__main__':
          
     # Calculate 1981-2010 monthly normals for each station and
     # add to database
-    print "Adding monthly normals to Tmin database..."
+    print("Adding monthly normals to Tmin database...")
     add_monthly_normals(stnda_tmin, start_norm_yr=1981, end_norm_yr=2010)
-    print "Adding monthly normals to Tmax database..."
+    print("Adding monthly normals to Tmax database...")
     add_monthly_normals(stnda_tmax, start_norm_yr=1981, end_norm_yr=2010)

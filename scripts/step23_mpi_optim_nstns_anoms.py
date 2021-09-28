@@ -40,7 +40,7 @@ def proc_work(fpath_stndb, elem, ngh_rng, rank):
         
     bcast_msg = None
     bcast_msg = MPI.COMM_WORLD.bcast(bcast_msg, root=RANK_COORD)    
-    print "".join(["WORKER ", str(rank), ": Received broadcast msg"])
+    print("".join(["WORKER ", str(rank), ": Received broadcast msg"]))
     
     while 1:
     
@@ -49,7 +49,7 @@ def proc_work(fpath_stndb, elem, ngh_rng, rank):
         
         if status.tag == TAG_STOPWORK:
             MPI.COMM_WORLD.send([None] * 4, dest=RANK_WRITE, tag=TAG_STOPWORK)
-            print "".join(["WORKER ", str(rank), ": Finished"]) 
+            print("".join(["WORKER ", str(rank), ": Finished"])) 
             return 0
         else:
             
@@ -59,8 +59,8 @@ def proc_work(fpath_stndb, elem, ngh_rng, rank):
                                             
             except Exception as e:
             
-                print "".join(["ERROR: WORKER ", str(rank), ": could not xval ",
-                               stn_id, "...", str(e)])
+                print("".join(["ERROR: WORKER ", str(rank), ": could not xval ",
+                               stn_id, "...", str(e)]))
                 
                 mae = np.ones((ngh_rng.size, 12)) * netCDF4.default_fillvals['f8']
                 bias = np.ones((ngh_rng.size, 12)) * netCDF4.default_fillvals['f8']
@@ -77,7 +77,7 @@ def proc_write(fpath_stndb, elem, climdivs, ngh_rng, path_out_optim, nwrkers):
     bcast_msg = None
     bcast_msg = MPI.COMM_WORLD.bcast(bcast_msg, root=RANK_COORD)
     stn_ids = bcast_msg
-    print "WRITER: Received broadcast msg"
+    print("WRITER: Received broadcast msg")
     
     stn_da = StationSerialDataDb(fpath_stndb, elem, mode="r+")
     stn_mask = np.in1d(stn_da.stn_ids, stn_ids, True)
@@ -95,7 +95,7 @@ def proc_write(fpath_stndb, elem, climdivs, ngh_rng, path_out_optim, nwrkers):
         
         ttl_xval_stns += stnids_climdiv.size
     
-    print "WRITER: Output NCDF files created"
+    print("WRITER: Output NCDF files created")
         
     stn_idxs = {}
     for x in np.arange(stns.size):
@@ -121,13 +121,13 @@ def proc_write(fpath_stndb, elem, climdivs, ngh_rng, path_out_optim, nwrkers):
             if nwrkrs_done == nwrkers:
                 
                 #######################################################
-                print "WRITER: Setting the optim # of nghs..."
+                print("WRITER: Setting the optim # of nghs...")
                                 
                 set_optim_nstns_tair_anom(stn_da, path_out_optim)
             
                 ######################################################
                 
-                print "WRITER: Finished"
+                print("WRITER: Finished")
                 return 0
                 
         else:
@@ -151,7 +151,7 @@ def proc_coord(fpath_stndb, elem, climdivs, nwrkers):
     # Send stn ids to all processes
     MPI.COMM_WORLD.bcast(stns[STN_ID], root=RANK_COORD)
         
-    print "COORD: Done initialization. Starting to send work."
+    print("COORD: Done initialization. Starting to send work.")
     
     cnt = 0
     nrec = 0
@@ -172,12 +172,12 @@ def proc_coord(fpath_stndb, elem, climdivs, nwrkers):
             MPI.COMM_WORLD.send(stn_id, dest=dest, tag=TAG_DOWORK)
             cnt += 1
     
-        print "".join(["COORD: Finished xval of climate division: ", str(climdiv)])
+        print("".join(["COORD: Finished xval of climate division: ", str(climdiv)]))
     
     for w in np.arange(nwrkers):
         MPI.COMM_WORLD.send(None, dest=w + N_NON_WRKRS, tag=TAG_STOPWORK)
         
-    print "COORD: done"
+    print("COORD: done")
 
 
 if __name__ == '__main__':
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     rank = MPI.COMM_WORLD.Get_rank()
     nsize = MPI.COMM_WORLD.Get_size()
     
-    print "Process %d of %d: element is %s" % (rank, nsize, elem)
+    print("Process %d of %d: element is %s" % (rank, nsize, elem))
     
     # out path for optimization files
     path_out_optim = twx_cfg.path_interp_optim_anoms

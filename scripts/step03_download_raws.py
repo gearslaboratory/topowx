@@ -22,6 +22,12 @@ if __name__ == '__main__':
     ghcnd = obsiof.create_obsio_dly_ghcnd()
     ghcndraws_ids = ghcnd.stns.loc[ghcnd.stns.sub_provider=='RAWS',
                                    'station_id'].str[-4:].values
+    #print(type(ghcndraws_ids))
+    print(ghcnd.stns.loc[ghcnd.stns.sub_provider=='RAWS', 'station_id'])
+    #if(ghcndraws_ids.size == 0):
+    #    stns = raws.stns
+    #else:
+        #stns = raws.stns[raws.stns.station_id.isin(ghcndraws_ids)]
     stns = raws.stns[raws.stns.station_id.isin(ghcndraws_ids)]
     
     # Download observations to PyTables HDF file.

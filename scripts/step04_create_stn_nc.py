@@ -11,7 +11,6 @@ import numpy as np
 if __name__ == '__main__':
 
     twx_cfg = TwxConfig(os.getenv('TOPOWX_INI'))
-    
     ghcnd = obsio.HdfObsIO(twx_cfg.fpath_stndata_hdf_ghcnd)
     snotel = obsio.HdfObsIO(twx_cfg.fpath_stndata_hdf_snotel)
     raws = obsio.HdfObsIO(twx_cfg.fpath_stndata_hdf_raws)
@@ -23,7 +22,7 @@ if __name__ == '__main__':
     # Create netcdf
     allio.to_netcdf(twx_cfg.fpath_stndata_nc_all, stnids_sorted,
                     twx_cfg.obs_start_date, twx_cfg.obs_end_date,
-                    chk_rw=twx_cfg.stn_write_chunk_nc, verbose=True)
+                   chk_rw=twx_cfg.stn_write_chunk_nc, verbose=True)
     
     # Add QA Flag observation variable for each element
     stndb = StationDataDb(twx_cfg.fpath_stndata_nc_all, mode='r+')

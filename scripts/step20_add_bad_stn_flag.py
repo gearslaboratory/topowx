@@ -53,7 +53,7 @@ if __name__ == '__main__':
         # at the exact same location. For two or more stations with the same
         # location, the one with the longest non-infilled period-of-record is
         # used and the others are considered duplicates.
-        print "Finding duplicate stations for %s..." % (a_stnda.var_name,)
+        print("Finding duplicate stations for %s..." % (a_stnda.var_name,))
         dup_stnids = find_dup_stns(a_istnda)
          
         all_rm_stnids = np.unique(np.concatenate([bad_stnids, stnids_no_tdi,
@@ -61,11 +61,11 @@ if __name__ == '__main__':
          
         set_bad_stations(a_stnda.ds, all_rm_stnids)
          
-        print "%d total stations removed for %s:" % (all_rm_stnids.size, a_stnda.var_name)
-        print "%d stations removed due to infilling issues" % (bad_stnids.size,)
-        print "%d stations removed due to no TDI values" % (stnids_no_tdi.size,)
-        print "%d stations removed due no climate division value, but within domain mask" % (stnids_no_climdiv.size,)
-        print "%d stations removed due to being duplicates" % (dup_stnids.size,)
+        print("%d total stations removed for %s:" % (all_rm_stnids.size, a_stnda.var_name))
+        print("%d stations removed due to infilling issues" % (bad_stnids.size,))
+        print("%d stations removed due to no TDI values" % (stnids_no_tdi.size,))
+        print("%d stations removed due no climate division value, but within domain mask" % (stnids_no_climdiv.size,))
+        print("%d stations removed due to being duplicates" % (dup_stnids.size,))
  
     # Last step of marking "bad" stations. Run a cross validation of a simple geographically
     # weighted regression model that predicts annual and monthly temperature normals. 
@@ -83,24 +83,24 @@ if __name__ == '__main__':
 
     for a_stnda in [stnda_tmin, stnda_tmax]:
         
-        print "Finding outlier stations for %s..." % (a_stnda.var_name,)
+        print("Finding outlier stations for %s..." % (a_stnda.var_name,))
         
         out_xval = XvalOutlier(a_stnda)
         stn_ids = a_stnda.stn_ids[np.isnan(a_stnda.stns[BAD])]
         
         out_stnids = out_xval.find_xval_outliers(stn_ids)
-        print out_stnids
+        print(out_stnids)
         # Mark station bad for both Tmin and Tmax
         set_bad_stations(stnda_tmin.ds, out_stnids, reset=False)
         set_bad_stations(stnda_tmax.ds, out_stnids, reset=False)
         
-        print "%d stations removed due to being outliers" % (out_stnids.size,)
+        print("%d stations removed due to being outliers" % (out_stnids.size,))
         
     stnda_tmin.ds.close() 
     stnda_tmax.ds.close()
         
     # Ensure that all remaining "good" stations do not have any missing values
-    print "Performing final checks to ensure all 'good' stations have no missing values..."
+    print("Performing final checks to ensure all 'good' stations have no missing values...")
     for a_fpath, a_elem in zip([twx_cfg.fpath_stndata_nc_serial_tmin,
                                 twx_cfg.fpath_stndata_nc_serial_tmax],
                                ['tmin','tmax']):

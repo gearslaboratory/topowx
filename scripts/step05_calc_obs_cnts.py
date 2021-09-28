@@ -13,15 +13,15 @@ if __name__ == '__main__':
     
     for elem in twx_cfg.obs_main_elems:
         
-        print ("Adding monthly observation counts for %s from %d to %d... " % 
-               (elem, ymdL(twx_cfg.obs_start_date), ymdL(twx_cfg.obs_end_date)))
+        print(("Adding monthly observation counts for %s from %d to %d... " % 
+               (elem, ymdL(twx_cfg.obs_start_date), ymdL(twx_cfg.obs_end_date))))
     
         add_obs_cnt(twx_cfg.fpath_stndata_nc_all, elem,
                     twx_cfg.obs_start_date, twx_cfg.obs_end_date,
                     twx_cfg.stn_agg_chunk)
         
-        print ("Adding monthly observation counts for %s from %d to %d... " % 
-               (elem, ymdL(twx_cfg.interp_start_date), ymdL(twx_cfg.interp_end_date)))
+        print(("Adding monthly observation counts for %s from %d to %d... " % 
+               (elem, ymdL(twx_cfg.interp_start_date), ymdL(twx_cfg.interp_end_date))))
         
         add_obs_cnt(twx_cfg.fpath_stndata_nc_all, elem,
                     twx_cfg.interp_start_date, twx_cfg.interp_end_date,

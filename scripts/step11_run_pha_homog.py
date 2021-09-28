@@ -11,30 +11,39 @@ from twx.db import add_obs_cnt, STN_ID, LON, LAT
 from twx.homog import HomogDaily, load_snotel_sensor_hist
 from twx.utils import DATE, mkdir_p, ymdL, TwxConfig
 import numpy as np
+import xarray as xr
 import os
 import pandas as pd
 import twx
+import sys
+
 
 if __name__ == '__main__':
-    
+    #sys.stdout = open('log.txt', 'w')
     twx_cfg = TwxConfig(os.getenv('TOPOWX_INI'))
     
     path_tmin_pha_src = os.path.join(twx_cfg.path_homog_pha, 'tmin', 'src')
     path_tmin_pha_run = os.path.join(twx_cfg.path_homog_pha, 'tmin', 'run')
+    path_tmin_pha_output = os.path.join(path_tmin_pha_run, 'testdata', 'benchmark', 'world1', 
+                           'output')
     mkdir_p(path_tmin_pha_src)
     mkdir_p(path_tmin_pha_run)
+    mkdir_p(path_tmin_pha_output)
     
     path_tmax_pha_src = os.path.join(twx_cfg.path_homog_pha, 'tmax', 'src')
     path_tmax_pha_run = os.path.join(twx_cfg.path_homog_pha, 'tmax', 'run')
+    path_tmin_pha_output = os.path.join(path_tmax_pha_run, 'testdata', 'benchmark', 'world1',
+                           'output')
     mkdir_p(path_tmax_pha_src)
     mkdir_p(path_tmax_pha_run)
+    mkdir_p(path_tmin_pha_output)
             
     # Download PHA source code tgz file if not already on local filesystem
     if not os.path.exists(twx_cfg.fpath_pha_tgz):
           
         with open(twx_cfg.fpath_pha_tgz, 'wb') as f:
               
-            print "Downloading phav52i.tar.gz from FTP..."
+            print("Downloading phav52i.tar.gz from FTP...")
             ftp = FTP('ftp.ncdc.noaa.gov')
             ftp.login()
             ftp.retrbinary("RETR " +
@@ -52,8 +61,27 @@ if __name__ == '__main__':
                           end_date=twx_cfg.obs_end_date)
     ushcnio = obsiof.create_obsio_mthly_ushcn(local_data_path=twx_cfg.path_stndata,
                                               download_updates=False)
-    ref_ushcn = ushcnio.read_obs(data_structure='array')
-    ref_ushcn = ref_ushcn.reindex({'time':stnda.xrds.time_mth})
+    #ushcnio._read_stns()
+    #ushcnio.download_local()
+    #sys.settrace(trace_calls)
+    #hunter.trace(module='posixpath', action=hunter.CallPrinter)
+    ref_ushcn = ushcnio.read_obs(data_structure='array', coords=True)
+   # print(ref_ushcn)
+   # print(stnda.xrds)
+    #ref_ushcn's time dimension needs to be renamed to time_mth
+    #print(ref_ushcn)
+    #sys.exit()
+    #print(stnda.xrds.station_name.size)
+    #print(stnda.xrds.latitude.size)
+    #print(stnda.xrds.sel(station_id='USH00011084'))
+    #print("Merging...")
+    #merged = xr.concat(ref_ushcn, stnda.xrds, dim='station_id')
+    #merged = ref_ushcn.combine_first(stnda.xrds)
+    #print(merged)
+    ref_ushcn = ref_ushcn.rename({'time':'time_mth'})
+    ref_ushcn = ref_ushcn.reindex({'time_mth':stnda.xrds.time_mth})
+    #ref_ushcn = ref_ushcn.reindex({'time':stnda.xrds.time})
+    
     
     ref_stns = ref_ushcn[[STN_ID, LON, LAT]].to_dataframe().reset_index().to_records(index=False)
     ref_tmin = ref_ushcn.tmin_mth_fls.values
@@ -67,7 +95,7 @@ if __name__ == '__main__':
     mthly_tmin = stnda.xrds['tmin_mth'][:].values
     mthly_tmin = np.hstack((mthly_tmin, ref_tmin))
     mthly_tmin = np.ma.masked_invalid(mthly_tmin)
-      
+    
     stns_all_tmin = pd.concat((pd.DataFrame(stns[[STN_ID,LON,LAT]]),
                                pd.DataFrame(ref_stns[[STN_ID,LON,LAT]])),
                                ignore_index=True).to_records(index=False)
@@ -79,7 +107,7 @@ if __name__ == '__main__':
     del mthly_tmin
     
     # Run PHA for Tmin
-    twx.homog.run_pha(path_tmin_pha_run, 'tmin')
+    twx.homog.run_pha(path_tmin_pha_src, path_tmin_pha_run, 'tmin')
        
     # Perform PHA setup for Tmax
     mthly_tmax = stnda.xrds['tmax_mth'][:].values
@@ -97,7 +125,7 @@ if __name__ == '__main__':
     del mthly_tmax
               
     # Run PHA for Tmax
-    twx.homog.run_pha(path_tmax_pha_run, 'tmax')
+    twx.homog.run_pha(path_tmax_pha_src, path_tmax_pha_run, 'tmax')
     
     # Use PHA results to homogenize daily station data and insert
     # into new homogenized database
@@ -114,16 +142,16 @@ if __name__ == '__main__':
                    
     for elem in ['tmin', 'tmax']:
        
-        print ("Updating monthly observation counts for %s from %d to %d... " % 
+        print(("Updating monthly observation counts for %s from %d to %d... " % 
                (elem, ymdL(twx_cfg.obs_start_date),
-                ymdL(twx_cfg.obs_end_date)))
+                ymdL(twx_cfg.obs_end_date))))
         
         add_obs_cnt(twx_cfg.fpath_stndata_nc_tair_homog, elem,
                     twx_cfg.obs_start_date, twx_cfg.obs_end_date,
                     twx_cfg.stn_agg_chunk)
            
-        print ("Updating monthly observation counts for %s from %d to %d... " % 
-               (elem, ymdL(twx_cfg.interp_start_date), ymdL(twx_cfg.interp_end_date)))
+        print(("Updating monthly observation counts for %s from %d to %d... " % 
+               (elem, ymdL(twx_cfg.interp_start_date), ymdL(twx_cfg.interp_end_date))))
            
         add_obs_cnt(twx_cfg.fpath_stndata_nc_tair_homog, elem,
                     twx_cfg.interp_start_date, twx_cfg.interp_end_date,

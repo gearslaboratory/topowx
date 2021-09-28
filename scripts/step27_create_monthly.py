@@ -19,7 +19,7 @@ if __name__ == '__main__':
     
         for a_yr in yrs:
         
-            print "Processing %s for %d..." % (a_elem, a_yr)
+            print("Processing %s for %d..." % (a_elem, a_yr))
             fpath_ds_in = os.path.join(twx_cfg.path_mosaic_daily, a_elem,
                                        '%s_%d.nc'%(a_elem,a_yr))
             path_ds_out = os.path.join(twx_cfg.path_mosaic_monthly, a_elem)

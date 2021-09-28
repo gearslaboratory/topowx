@@ -33,7 +33,7 @@ def proc_work(twx_cfg, start_ymd, end_ymd, min_nngh_daily, rank):
     bcast_msg = None
     bcast_msg = MPI.COMM_WORLD.bcast(bcast_msg, root=RANK_COORD)
     mask_por_tmin, mask_por_tmax = bcast_msg
-    print "".join(["WORKER ", str(rank), ": Received broadcast msg"])
+    print("".join(["WORKER ", str(rank), ": Received broadcast msg"]))
             
     stn_masks = {'tmin':mask_por_tmin, 'tmax':mask_por_tmax}
     
@@ -48,7 +48,7 @@ def proc_work(twx_cfg, start_ymd, end_ymd, min_nngh_daily, rank):
 
         if status.tag == TAG_STOPWORK:
             MPI.COMM_WORLD.send([None] * 4, dest=RANK_WRITE, tag=TAG_STOPWORK)
-            print "".join(["WORKER ", str(rank), ": Finished"]) 
+            print("".join(["WORKER ", str(rank), ": Finished"])) 
             return 0
         else:
             
@@ -62,8 +62,8 @@ def proc_work(twx_cfg, start_ymd, end_ymd, min_nngh_daily, rank):
             
             except Exception as e:
             
-                print "".join(["ERROR: WORKER ", str(rank), ": could not infill ",
-                               tair_var, " for ", stn_id, str(e)])
+                print("".join(["ERROR: WORKER ", str(rank), ": could not infill ",
+                               tair_var, " for ", stn_id, str(e)]))
                 
                 empty = np.empty(12)
                 empty.fill(netCDF4.default_fillvals['f8'])
@@ -101,7 +101,7 @@ def proc_write(twx_cfg, start_ymd, end_ymd, nwrkers):
     mask_por_tmin, mask_por_tmax = bcast_msg
     stn_ids_tmin, stn_ids_tmax = (stn_da.stn_ids[mask_por_tmin],
                                   stn_da.stn_ids[mask_por_tmax])
-    print "WRITER: Received broadcast msg"
+    print("WRITER: Received broadcast msg")
     stn_ids_uniq = np.unique(np.concatenate([stn_ids_tmin, stn_ids_tmax]))
     
     stn_idxs = {}
@@ -123,7 +123,7 @@ def proc_write(twx_cfg, start_ymd, end_ymd, nwrkers):
             
             nwrkrs_done += 1
             if nwrkrs_done == nwrkers:
-                print "WRITER: Finished"
+                print("WRITER: Finished")
                 return 0
         else:
             
@@ -168,7 +168,7 @@ def proc_coord(twx_cfg, min_por, start_ymd, end_ymd, nwrkers):
     # Send stn masks to all processes
     MPI.COMM_WORLD.bcast((mask_por_tmin, mask_por_tmax), root=RANK_COORD)
     
-    print "COORD: Done initialization. Starting to send work."
+    print("COORD: Done initialization. Starting to send work.")
     
     cnt = 0
     nrec = 0
@@ -195,7 +195,7 @@ def proc_coord(twx_cfg, min_por, start_ymd, end_ymd, nwrkers):
     for w in np.arange(nwrkers):
         MPI.COMM_WORLD.send((None, None), dest=w + N_NON_WRKRS, tag=TAG_STOPWORK)
         
-    print "COORD: done"
+    print("COORD: done")
 
 if __name__ == '__main__':
     

@@ -52,7 +52,7 @@ def proc_work(twx_cfg, xval_stnids, nyrs_train, start_ymd, end_ymd, params_ppca,
                                       xval_stnids=xval_stnids,
                                       ntrain_yrs=nyrs_train)
         
-    print "".join(["WORKER ", str(rank), ": ready to receive work."])
+    print("".join(["WORKER ", str(rank), ": ready to receive work."]))
     
     empty = np.ones(stn_da.days.size) * np.nan
         
@@ -64,7 +64,7 @@ def proc_work(twx_cfg, xval_stnids, nyrs_train, start_ymd, end_ymd, params_ppca,
         if status.tag == TAG_STOPWORK:
             
             MPI.COMM_WORLD.send([None] * 4, dest=RANK_WRITE, tag=TAG_STOPWORK)
-            print "".join(["WORKER ", str(rank), ": Finished"]) 
+            print("".join(["WORKER ", str(rank), ": Finished"])) 
             return 0
        
         else:
@@ -75,8 +75,8 @@ def proc_work(twx_cfg, xval_stnids, nyrs_train, start_ymd, end_ymd, params_ppca,
             
             except Exception as e:
             
-                print "".join(["ERROR: WORKER ", str(rank), ": could not infill ",
-                               tair_var, " for ", stn_id, str(e)])
+                print("".join(["ERROR: WORKER ", str(rank), ": could not infill ",
+                               tair_var, " for ", stn_id, str(e)]))
                 
                 infill_tair = empty
                 obs_tair = empty
@@ -120,7 +120,7 @@ def proc_write(twx_cfg, xval_stnids, start_ymd, end_ymd, nwrkers):
             
             nwrkrs_done += 1
             if nwrkrs_done == nwrkers:
-                print "WRITER: Finished"
+                print("WRITER: Finished")
                 return 0
         else:
             
@@ -133,8 +133,8 @@ def proc_write(twx_cfg, xval_stnids, start_ymd, end_ymd, nwrkers):
             bias = np.ma.mean(difs)
             mae = np.ma.mean(np.ma.abs(difs))
             
-            print "|".join(["WRITER", stn_id, tair_var,
-                            "MAE: %.2f" % (mae,), "BIAS: %.2f" % (bias,)])
+            print("|".join(["WRITER", stn_id, tair_var,
+                            "MAE: %.2f" % (mae,), "BIAS: %.2f" % (bias,)]))
             
             obs_tair = np.ma.filled(obs_tair, netCDF4.default_fillvals['f4'])
             ds_out.variables["obs_%s" % (tair_var,)][:, i] = obs_tair
@@ -154,7 +154,7 @@ def proc_coord(twx_cfg, xval_stnids, start_ymd, end_ymd, nwrkers):
     if xval_stnids is None:
         xval_stnids = load_default_xval_stnids(stn_da.stn_ids)
     
-    print "COORD: Done initialization. Starting to send work."
+    print("COORD: Done initialization. Starting to send work.")
     
     cnt = 0
     nrec = 0
@@ -175,7 +175,7 @@ def proc_coord(twx_cfg, xval_stnids, start_ymd, end_ymd, nwrkers):
     for w in np.arange(nwrkers):
         MPI.COMM_WORLD.send((None, None), dest=w + N_NON_WRKRS, tag=TAG_STOPWORK)
         
-    print "COORD: done"
+    print("COORD: done")
 
 if __name__ == '__main__':
         
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     rank = MPI.COMM_WORLD.Get_rank()
     nsize = MPI.COMM_WORLD.Get_size()
     
-    print "Started process %d of %d"%(rank,nsize)
+    print("Started process %d of %d"%(rank,nsize))
     
     # The number of years on which that infill model
     # should be trained and built

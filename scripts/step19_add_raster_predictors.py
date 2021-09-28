@@ -32,19 +32,19 @@ if __name__ == '__main__':
     units = "C"
      
     # Nighttime LST
-    print "Adding Nighttime LST values to Tmin stations..."
+    print("Adding Nighttime LST values to Tmin stations...")
     for mth in np.arange(1, 13):
         var_name = 'lst%02d' % mth
-        print var_name
+        print(var_name)
         a_rast = RasterDataset(os.path.join(path_lst_rasters, 'LST_Night.%.2d.tif' % mth))
         add_stn_raster_values(stnda_tmin, var_name, long_name, units, a_rast,
                               revert_nn=True, force_data_value=True)
       
     # Daytime LST
-    print "Adding Daytime LST values to Tmax stations..."
+    print("Adding Daytime LST values to Tmax stations...")
     for mth in np.arange(1, 13):
         var_name = 'lst%02d' % mth
-        print var_name 
+        print(var_name) 
         a_rast = RasterDataset(os.path.join(path_lst_rasters, 'LST_Day.%.2d.tif' % mth))
         add_stn_raster_values(stnda_tmax, var_name, long_name, units, a_rast,
                               revert_nn=True, force_data_value=True)
@@ -58,11 +58,11 @@ if __name__ == '__main__':
     a_rast = RasterDataset(os.path.join(twx_cfg.path_rasters, 'tdi.tif'))
  
     # Tmin TDI
-    print "Adding TDI values to Tmin stations..."
+    print("Adding TDI values to Tmin stations...")
     add_stn_raster_values(stnda_tmin, var_name, long_name, units, a_rast, revert_nn=True)    
 
     # Tmax TDI
-    print "Adding TDI values to Tmax stations..."
+    print("Adding TDI values to Tmax stations...")
     add_stn_raster_values(stnda_tmax, var_name, long_name, units, a_rast, revert_nn=True)
      
     # Interpolation Mask
@@ -73,11 +73,11 @@ if __name__ == '__main__':
     a_rast.ndata = 0
      
     # Tmin interpolation mask
-    print "Adding interpolation mask values to Tmin stations..."
+    print("Adding interpolation mask values to Tmin stations...")
     add_stn_raster_values(stnda_tmin, var_name, long_name, units, a_rast, extract_method=0)
     
     # Tmax interpolation mask
-    print "Adding interpolation mask values to Tmax stations..."
+    print("Adding interpolation mask values to Tmax stations...")
     add_stn_raster_values(stnda_tmax, var_name, long_name, units, a_rast, extract_method=0)
      
     # U.S. Climate Divisions
@@ -87,10 +87,10 @@ if __name__ == '__main__':
     a_rast = RasterDataset(os.path.join(twx_cfg.path_rasters, 'climdiv.tif'))
       
     # Tmin U.S. Climate Divisions
-    print "Adding U.S. climate division values to Tmin stations..."
+    print("Adding U.S. climate division values to Tmin stations...")
     add_stn_raster_values(stnda_tmin, var_name, long_name, units, a_rast, extract_method=0)
 
     # Tmax U.S. Climate Divisions
-    print "Adding U.S. climate division values to Tmax stations..."
+    print("Adding U.S. climate division values to Tmax stations...")
     add_stn_raster_values(stnda_tmax, var_name, long_name, units, a_rast, extract_method=0)
     

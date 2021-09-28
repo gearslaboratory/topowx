@@ -61,7 +61,7 @@ def proc_work(params, rank):
     bcast_msg = None
     bcast_msg = MPI.COMM_WORLD.bcast(bcast_msg, root=RANK_COORD)    
     tile_grid_info = bcast_msg
-    print "".join(["WORKER ", str(rank), ": Received broadcast msg"])
+    print("".join(["WORKER ", str(rank), ": Received broadcast msg"]))
         
     awriter = TileWriter(tile_grid_info, params[P_PATH_OUT])
     
@@ -99,7 +99,7 @@ def proc_work(params, rank):
         if status.tag == TAG_STOPWORK:
             
             MPI.COMM_WORLD.Send([tile_num, MPI.INT], dest=RANK_WRITE, tag=TAG_STOPWORK) 
-            print "".join(["WORKER ", str(rank), ": Finished"]) 
+            print("".join(["WORKER ", str(rank), ": Finished"])) 
             return 0
         
         else:
@@ -146,17 +146,17 @@ def proc_work(params, rank):
                             tmin_dly, tmax_dly, tmin_norms, tmax_norms, tmin_se, tmax_se, ninvalid = ptInterp.interp_pt()
                           
                             if ninvalid >= ninvalid_warn_cutoff:
-                                print "".join(["WARNING: ", "Point had ", str(ninvalid),
+                                print("".join(["WARNING: ", "Point had ", str(ninvalid),
                                                " days tmin >= tmax: ", 
                                                str(ptInterp.a_pt[LON]), " ",
-                                               str(ptInterp.a_pt[LAT])])
+                                               str(ptInterp.a_pt[LAT])]))
                             
                         except Exception as e:
                             
-                            print "".join(["ERROR: Could not interp ",
+                            print("".join(["ERROR: Could not interp ",
                                            str(ptInterp.a_pt[LON]), " ",
                                            str(ptInterp.a_pt[LAT]),
-                                           ". Leaving output as fill values: ", str(e)])
+                                           ". Leaving output as fill values: ", str(e)]))
                             error = True
                             
                         if not error:                                          
@@ -195,7 +195,7 @@ def proc_work(params, rank):
             
             MPI.COMM_WORLD.Send([tile_num, MPI.INT], dest=RANK_WRITE, tag=TAG_DONE_WRITE) 
             MPI.COMM_WORLD.send(rank, RANK_COORD, tag=TAG_DOWORK)
-            print "WORKER " + str(rank) + " completed chunk for tile " + tile_id
+            print("WORKER " + str(rank) + " completed chunk for tile " + tile_id)
     
 def proc_write(params, nwrkers):
 
@@ -211,11 +211,11 @@ def proc_write(params, nwrkers):
     chks_per_tile = tile_grid_info.chks_per_tile
     
     tile_status = {}
-    for key in tile_ids.keys():
+    for key in list(tile_ids.keys()):
         tile_status[key] = 0
     
     tile_queues = {}
-    for key in tile_ids.keys():
+    for key in list(tile_ids.keys()):
         tile_queues[key] = deque()
     
     stat_chk = StatusCheck(nchks, 1)
@@ -244,7 +244,7 @@ def proc_write(params, nwrkers):
             tile_queues[tile_num].popleft()
             tile_status[tile_num] += 1
             if tile_status[tile_num] == chks_per_tile:
-                print "".join(["WRITER: Tile ", tile_ids[tile_num], " complete."])
+                print("".join(["WRITER: Tile ", tile_ids[tile_num], " complete."]))
             stat_chk.increment()
             
             try:
@@ -284,7 +284,7 @@ def proc_coord(params, nwrkers):
     
     MPI.COMM_WORLD.bcast(atiler.build_tile_grid_info(), root=RANK_COORD)
     
-    print "COORD: Starting to send work chunks to workers..."
+    print("COORD: Starting to send work chunks to workers...")
     
     cnt = 0
     
@@ -292,7 +292,7 @@ def proc_coord(params, nwrkers):
     
         while 1:
             
-            tile_num, wrk_chk = atiler.next()
+            tile_num, wrk_chk = next(atiler)
             
             if cnt < nwrkers:
                 dest = cnt + N_NON_WRKRS
@@ -311,7 +311,7 @@ def proc_coord(params, nwrkers):
         MPI.COMM_WORLD.Send([wrk_chk, MPI.DOUBLE], dest=w + N_NON_WRKRS,
                             tag=TAG_STOPWORK)
     
-    print "COORD: done"
+    print("COORD: done")
 
 if __name__ == '__main__':
     

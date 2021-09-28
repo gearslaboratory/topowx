@@ -44,7 +44,7 @@ def proc_work(fpath_stndb, elem, rank):
         if status.tag == TAG_STOPWORK:
 
             MPI.COMM_WORLD.send([None] * 4, dest=RANK_WRITE, tag=TAG_STOPWORK)
-            print "".join(["WORKER ", str(rank), ": Finished"])
+            print("".join(["WORKER ", str(rank), ": Finished"]))
             return 0
 
         else:
@@ -55,8 +55,8 @@ def proc_work(fpath_stndb, elem, rank):
 
             except Exception as e:
 
-                print "".join(["ERROR: WORKER ", str(rank),
-                               ": could not get krig params for ", stn_id, str(e)])
+                print("".join(["ERROR: WORKER ", str(rank),
+                               ": could not get krig params for ", stn_id, str(e)]))
                 nug = np.ones(12) * netCDF4.default_fillvals['f8']
                 psill = np.ones(12) * netCDF4.default_fillvals['f8']
                 rng = np.ones(12) * netCDF4.default_fillvals['f8']
@@ -97,7 +97,7 @@ def proc_write(fpath_stndb, elem, nwrkers):
 
             nwrkrs_done += 1
             if nwrkrs_done == nwrkers:
-                print "WRITER: Finished"
+                print("WRITER: Finished")
                 return 0
         else:
 
@@ -120,7 +120,7 @@ def proc_coord(fpath_stndb, elem, nwrkers):
     mask_stns = np.logical_and(np.isfinite(stn_da.stns[MASK]), np.isnan(stn_da.stns[BAD]))
     stns = stn_da.stns[mask_stns]
 
-    print "COORD: Done initialization. Starting to send work."
+    print("COORD: Done initialization. Starting to send work.")
 
     cnt = 0
     nrec = 0
@@ -139,7 +139,7 @@ def proc_coord(fpath_stndb, elem, nwrkers):
     for w in np.arange(nwrkers):
         MPI.COMM_WORLD.send(None, dest=w + N_NON_WRKRS, tag=TAG_STOPWORK)
 
-    print "COORD: done"
+    print("COORD: done")
 
 if __name__ == '__main__':
     
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     rank = MPI.COMM_WORLD.Get_rank()
     nsize = MPI.COMM_WORLD.Get_size()
     
-    print "Process %d of %d: element is %s" % (rank, nsize, elem)
+    print("Process %d of %d: element is %s" % (rank, nsize, elem))
     
     if rank == RANK_COORD:
         proc_coord(fpath_stndb, elem, nsize - N_NON_WRKRS)

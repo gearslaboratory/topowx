@@ -36,12 +36,12 @@ class IterFlagUpdate:
     def update_flags(self, curs):
         raise Exception('update_flags called on IterFlagUpdate')
 
-    def next(self):
+    def __next__(self):
         self.x += 1
         if self.x > self.max:
             raise StopIteration
         else:
-            return (self.flag_map[self.tmin_flags[self.x]], self.flag_map[self.tmax_flags[self.x]], self.stn_id, long(self.ymd[self.x]))
+            return (self.flag_map[self.tmin_flags[self.x]], self.flag_map[self.tmax_flags[self.x]], self.stn_id, int(self.ymd[self.x]))
 
 class IterMultiFlagUpdate:
 
@@ -64,7 +64,7 @@ class IterMultiFlagUpdate:
         stn_ids = ds.variables[STN_ID][:]
         time_units = ds.variables['time'].units
 
-        print self.cur_iter.stn_id
+        print(self.cur_iter.stn_id)
 
         stn_id = ""
         stn_idx = 0
@@ -72,7 +72,7 @@ class IterMultiFlagUpdate:
 
             try:
                 # QFLAG_TMIN,QFLAG_TMAX,STN_ID,YMD
-                flag_row = self.next()
+                flag_row = next(self)
 
                 if stn_id != flag_row[2]:
 
@@ -82,9 +82,9 @@ class IterMultiFlagUpdate:
                 time_idx = int(date2index(ymdL_to_date(flag_row[3]), ds.variables['time']))
                 
                 if flag_row[0] != '':
-                    print 'qflag_tmin',stn_id, time_idx, stn_idx,flag_row[0]
+                    print('qflag_tmin',stn_id, time_idx, stn_idx,flag_row[0])
                 if flag_row[1] != '':
-                    print 'qflag_tmax',stn_id, time_idx, stn_idx,flag_row[1]
+                    print('qflag_tmax',stn_id, time_idx, stn_idx,flag_row[1])
                 ds.variables['qflag_tmin'][time_idx, stn_idx] = flag_row[0]
                 ds.variables['qflag_tmax'][time_idx, stn_idx] = flag_row[1]
 
@@ -94,9 +94,9 @@ class IterMultiFlagUpdate:
         ds.sync()
         ds.close()
 
-    def next(self):
+    def __next__(self):
         try:
-            return self.cur_iter.next()
+            return next(self.cur_iter)
         except StopIteration:
             self.x += 1
             if self.x > self.max:
@@ -105,8 +105,8 @@ class IterMultiFlagUpdate:
                 while True:
                     try:
                         self.cur_iter = self.iters[self.x]
-                        print self.cur_iter.stn_id
-                        return self.cur_iter.next()
+                        print(self.cur_iter.stn_id)
+                        return next(self.cur_iter)
                     except StopIteration:
                         self.x += 1
                         if self.x > self.max:
@@ -126,7 +126,7 @@ def proc_work(twx_cfg, qa_spatial, rank):
 
             if status.tag == TAG_STOPWORK:
                 MPI.COMM_WORLD.send(None, dest=RANK_WRITE, tag=TAG_STOPWORK)
-                print "".join(["Worker ", str(rank), ": Finished"])
+                print("".join(["Worker ", str(rank), ": Finished"]))
                 return 0
 
             obs = stndb.load_all_stn_obs(np.array([stn_id]))
@@ -151,9 +151,9 @@ def proc_work(twx_cfg, qa_spatial, rank):
 
             MPI.COMM_WORLD.send(a_iter, dest=RANK_WRITE, tag=TAG_DOWORK)
 
-        except Exception, e:
-            print traceback.format_exc()
-            print "".join(["Error in QA of ", stn_id, ":", str(e), "\n"])
+        except Exception as e:
+            print(traceback.format_exc())
+            print("".join(["Error in QA of ", stn_id, ":", str(e), "\n"]))
 
         MPI.COMM_WORLD.send(rank, dest=RANK_COORD, tag=TAG_DOWORK)
 
@@ -182,8 +182,8 @@ def create_update_iter(stn, flags_tmin, flags_tmax, days,
     else:
         pctflg_tmax = (nflag_tmax / float(nobs_tmax)) * 100.0
 
-    print ("%s: Pct. of Tmin|Tmax observations flagged: %.2f (%d total)|%.2f (%d total)" %
-           (stn[STN_ID], pctflg_tmin, nflag_tmin, pctflg_tmax, nflag_tmax))
+    print(("%s: Pct. of Tmin|Tmax observations flagged: %.2f (%d total)|%.2f (%d total)" %
+           (stn[STN_ID], pctflg_tmin, nflag_tmin, pctflg_tmax, nflag_tmax)))
 
     mask_all = np.logical_or(mask_tmin, mask_tmax)
     # make sure previous flags are not overwritten in the update
@@ -200,14 +200,21 @@ def set_prev_flags(flags, prev_flgs):
         uniq_flgs = np.unique(prev_flgs)
 
         for flag in uniq_flgs:
-
+            flag = flag.decode("utf-8")
             if flag != "":
 
                 mask_flg = prev_flgs == flag
                 mask_set = np.logical_and(mask_flg,
                                           np.logical_or(flags == qa_temp.QA_OK,
                                                         flags == qa_temp.QA_MISSING))
+                #print("Flag: \n")
+                #print(flag)
+                #print(type(flag))
+                #print("Uniq_Flgs: \n")
+                #print(uniq_flgs)
+                #print("flags[mask_set]: \n")
 
+                
                 flags[mask_set] = qa_temp.GHCN_TO_TWX_FLAGS_MAP[flag]
 
     return flags
@@ -231,7 +238,7 @@ def proc_write(twx_cfg, mask_stns, nwrkers):
             nwrkrs_done += 1
             if nwrkrs_done == nwrkers:
                 
-                print "Writer: updating QA flags in database..."
+                print("Writer: updating QA flags in database...")
                 
                 iter_all.update_flags(twx_cfg.fpath_stndata_nc_all)
                 
@@ -241,23 +248,23 @@ def proc_write(twx_cfg, mask_stns, nwrkers):
                 
                 for elem in ['tmin', 'tmax']:
                 
-                    print ("Updating monthly observation counts for %s from %d to %d... " % 
+                    print(("Updating monthly observation counts for %s from %d to %d... " % 
                            (elem, ymdL(twx_cfg.obs_start_date),
-                            ymdL(twx_cfg.obs_end_date)))
+                            ymdL(twx_cfg.obs_end_date))))
 
                     add_obs_cnt(twx_cfg.fpath_stndata_nc_all, elem,
                                 twx_cfg.obs_start_date, twx_cfg.obs_end_date,
                                 twx_cfg.stn_agg_chunk)
                     
-                    print ("Updating monthly observation counts for %s from %d to %d... " % 
-                           (elem, ymdL(twx_cfg.interp_start_date), ymdL(twx_cfg.interp_end_date)))
+                    print(("Updating monthly observation counts for %s from %d to %d... " % 
+                           (elem, ymdL(twx_cfg.interp_start_date), ymdL(twx_cfg.interp_end_date))))
                     
                     add_obs_cnt(twx_cfg.fpath_stndata_nc_all, elem,
                                 twx_cfg.interp_start_date, twx_cfg.interp_end_date,
                                 twx_cfg.stn_agg_chunk)
                 
                                 
-                print "Writer: Finished"
+                print("Writer: Finished")
                 return 0
         else:
 
@@ -308,7 +315,7 @@ if __name__ == '__main__':
     rank = MPI.COMM_WORLD.Get_rank()
     nsize = MPI.COMM_WORLD.Get_size()
     
-    print "Process %d of %d. Is spatial QA: %s"%(rank,nsize,qa_spatial)
+    print("Process %d of %d. Is spatial QA: %s"%(rank,nsize,qa_spatial))
     
     # Only run QA for SNOTEL and RAWS stations since GHCH-D observations
     # are already flagged by the Durre et al. 2010 procedures

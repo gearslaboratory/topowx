@@ -51,7 +51,7 @@ if __name__ == '__main__':
     update_lat = stns_update_loc.latitude_qa.values[i_sort]
     update_elev = stns_update_loc.elevation_qa.values[i_sort]
     
-    print "Updating locations of %d stations..."%i_stns.size
+    print("Updating locations of %d stations..."%i_stns.size)
     
     stndb.ds[LON][i_stns] = update_lon
     stndb.ds[LAT][i_stns] = update_lat
