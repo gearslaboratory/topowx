@@ -61,26 +61,10 @@ if __name__ == '__main__':
                           end_date=twx_cfg.obs_end_date)
     ushcnio = obsiof.create_obsio_mthly_ushcn(local_data_path=twx_cfg.path_stndata,
                                               download_updates=False)
-    #ushcnio._read_stns()
-    #ushcnio.download_local()
-    #sys.settrace(trace_calls)
-    #hunter.trace(module='posixpath', action=hunter.CallPrinter)
+
     ref_ushcn = ushcnio.read_obs(data_structure='array', coords=True)
-   # print(ref_ushcn)
-   # print(stnda.xrds)
-    #ref_ushcn's time dimension needs to be renamed to time_mth
-    #print(ref_ushcn)
-    #sys.exit()
-    #print(stnda.xrds.station_name.size)
-    #print(stnda.xrds.latitude.size)
-    #print(stnda.xrds.sel(station_id='USH00011084'))
-    #print("Merging...")
-    #merged = xr.concat(ref_ushcn, stnda.xrds, dim='station_id')
-    #merged = ref_ushcn.combine_first(stnda.xrds)
-    #print(merged)
     ref_ushcn = ref_ushcn.rename({'time':'time_mth'})
     ref_ushcn = ref_ushcn.reindex({'time_mth':stnda.xrds.time_mth})
-    #ref_ushcn = ref_ushcn.reindex({'time':stnda.xrds.time})
     
     
     ref_stns = ref_ushcn[[STN_ID, LON, LAT]].to_dataframe().reset_index().to_records(index=False)
