@@ -1347,7 +1347,6 @@ def add_utc_offset(ds_path, geonames_usrname=None):
     '''
     
     stnda = twx.db.StationDataDb(ds_path, mode='r+') 
-    
     var_utc = stnda.add_stn_variable(twx.db.UTC_OFFSET, twx.db.UTC_OFFSET,
                                      "", "i2")
     

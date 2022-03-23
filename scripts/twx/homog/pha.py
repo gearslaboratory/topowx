@@ -177,14 +177,6 @@ def run_pha(path_src, path_run, varname):
     varname : str
         Temperature variable name (tmin or tmax)
     '''
-    #path_testv52i = os.path.join(path_src, 'phav52i', 'scripts', 'combo_runs')
-    #path_runtest = os.path.join(path_testv52i, 'code', 'scripts')
-    #mkdir_p(os.path.join(path_testv52i, 'code'))
-    #mkdir_p(path_runtest)
-    #move_runtest = shutil.copyfile(os.path.join(path_testv52i, 'run_test.sh'), os.path.join(path_runtest, 'run_test.sh'))
-    #subprocess.call('chmod +x {}'.format(os.path.join(path_runtest, 'run_test.sh')), shell=True)
-    #pha_cmd = 'bash ' + os.path.join(path_testv52i, 'testv52i-pha.sh') + "  world1 %s raw 0 0 P" % (varname,)
-    #shutil.copyfile(os.path.join(path_run, 'testv52
     
     replacement(os.path.join(path_run, 'code', 'scripts', 'run_test.sh'),"#!/bin/sh","#!/bin/bash")
     replacement(os.path.join(path_run, 'code', 'scripts', 'run_test.sh'),"gawk","awk")
@@ -192,19 +184,14 @@ def run_pha(path_src, path_run, varname):
     pha_cmd = 'bash ' + os.path.join(path_run, 'testv52i-pha.sh') + "  world1 %s raw 0 0 P" % (varname,)
     #print(path_run)
     print(("Running PHA for %s..." % (varname,)))
-    print(os.path.isdir(r'/home/adrianom/Documents/code/topowx_updated/topowx/output/TWX_DATA_ROOT/station_data/homog/tmax/run/data/benchmark/world1/corr'))
     subprocess.call(pha_cmd, shell=True)
-    print(os.path.isdir(r'/home/adrianom/Documents/code/topowx_updated/topowx/output/TWX_DATA_ROOT/station_data/homog/tmax/run/data/benchmark/world1/corr'))
     
     path_log = os.path.join(path_run,'data','benchmark','world1','output','PHAv52i.FAST.MLY.TEST.*.%s.world1.r00.out.gz'%(varname,))
     path_out_log = os.path.join(path_run,'data','benchmark','world1','output','pha_adj_%s.log'%(varname,))
     
     print(("Writing log of PHA adjustments: "+path_out_log))
-    #mkdir_p(os.path.join(path_run, 'testdata', 'benchmark', 'world1', 'output'))
-    #print(os.path.isdir(os.path.join(path_run, 'testdata', 'benchmark', 'world1', 'output')))
     cmd = " ".join(["zgrep 'Adj write'",path_log,">",path_out_log])
     subprocess.call(cmd,shell=True)
-    #print(os.path.isdir(os.path.join(path_run, 'testdata', 'benchmark', 'world1', 'output')))
 
 
 class HomogDaily():
@@ -395,7 +382,7 @@ class InsertHomog(twx.db.Insert):
     
     def __load_input_not_stnlist(self,run_path):
         
-        fpath_corr = os.path.join(run_path,'testdata','benchmark','world1','corr')
+        fpath_corr = os.path.join(run_path,'data','benchmark','world1','corr')
         #mkdir_p(fpath_corr)
         fnames = np.array(os.listdir(fpath_corr))
         fnames_input_not_stnlist = fnames[np.char.endswith(fnames,'input_not_stnlist')]

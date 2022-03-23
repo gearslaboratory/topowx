@@ -61,7 +61,8 @@ class UtcOffset():
         '''
         
         print("Initializing tzwhere...")
-        self.tzw = tzwhere(shapely=True, forceTZ=True)
+        self.tzw = tzwhere(forceTZ=True)
+        #self.tzw = tzwhere(shapely=True, forceTZ=True)
         
         self.tz_offsets = {}
         tz_names = np.array(list(self.tzw.timezoneNamesToPolygons.keys()))
@@ -101,7 +102,8 @@ class UtcOffset():
             The UTC offset for the point. If the offset cannot be
             determined, the ndata value is returned.
         '''
-        
+        print(lat)
+        print(lon)
         tz_name = self.tzw.tzNameAt(lat, lon, forceTZ=True)
         offset = self.ndata
         
